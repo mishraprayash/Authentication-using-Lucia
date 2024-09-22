@@ -10,12 +10,12 @@ const DashboardPage = async () => {
     redirect("/authenticate");
   }
   return (
-    <>
-      <div>
-        Your are logged in as {user.name} with an email {user.email}
+    <div className="text-center">
+      <div className="p-5">
+        Your are logged in as <b>{user.name}</b> with an <b>Email:</b> {user.email}
       </div>
       <SignOutButton>Sign Out</SignOutButton>
-    </>
+    </div>
   );
 };
 export default DashboardPage;
