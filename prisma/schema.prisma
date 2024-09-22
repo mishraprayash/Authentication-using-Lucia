@@ -16,6 +16,7 @@ model User {
   name           String
   role           String?
   hashedPassword String?
+  picture        String?
   sessions       Session[]
 }
 model Session{
