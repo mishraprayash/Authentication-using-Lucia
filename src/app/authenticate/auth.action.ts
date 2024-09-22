@@ -60,7 +60,7 @@ export const signin = async (values: z.infer<typeof SignInFormSchema>) => {
       },
     });
     if (!user || !user.hashedPassword) {
-      return { erro: "Invalid Credentials", success: false };
+      return { error: "Invalid Credentials", success: false };
     }
     const passwordMatch = await new Argon2id().verify(
       user.hashedPassword,
@@ -81,4 +81,18 @@ export const signin = async (values: z.infer<typeof SignInFormSchema>) => {
     console.log(error);
     return { error: "Something wrong", success: false };
   }
+};
+
+export const logout = async () => {
+  const sessionId = cookies().get(lucia.sessionCookieName)?.value || null;
+  if (!sessionId) {
+    return { error: "No session found", success: false };
+  }
+  const sessionCookie = await lucia.createBlankSessionCookie();
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
+  return { success: true, message: "Logged out successfully" };
 };
