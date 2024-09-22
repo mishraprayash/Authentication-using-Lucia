@@ -8,6 +8,8 @@ import { Argon2id } from "oslo/password";
 import { lucia } from "@/lib/lucia";
 import { cookies } from "next/headers";
 import { SignInFormSchema } from "./SignInForm";
+import { generateCodeVerifier, generateState } from "arctic";
+import { googleOAuthClient } from "@/lib/googleOAuth";
 
 export const signup = async (values: z.infer<typeof SignUpFormSchema>) => {
   try {
@@ -95,4 +97,35 @@ export const logout = async () => {
     sessionCookie.attributes
   );
   return { success: true, message: "Logged out successfully" };
+};
+
+export const getGoogleOauthConsentUrl = async () => {
+  try {
+    const state = generateState();
+    const codeVerifier = generateCodeVerifier();
+    cookies().set("c_v", codeVerifier, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+    cookies().set("_s", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    // generating the consent url
+    const authUrl = await googleOAuthClient.createAuthorizationURL(
+      state,
+      codeVerifier,
+      {
+        scopes: ["email", "profile"],
+      }
+    );
+    // This will be the url for the consent page where the user will be asked to sign in and give consent to the app
+    // https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?response_type=code&client_id=638813626460-8j3o6ba2ohhvbjkrs3m39reljc6lf830.apps.googleusercontent.com&state=Xb5NBph-ndrImcwWG0Pya-Xz6-fgoIO-VPt0HFrhL24&scope=email%20profile%20openid&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fgoogle%2Fcallback&code_challenge=Z3uDBvRgquciT_-nKDG7y9hnAltoykIeZFMk0fdLocE&code_challenge_method=S256&service=lso&o2v=2&ddm=0&flowName=GeneralOAuthFlow
+
+    return { success: true, url: authUrl.toString() };
+  } catch (error) {
+    console.log(error);
+    return { error: "Something wrong", success: false };
+  }
 };
