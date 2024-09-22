@@ -6,14 +6,23 @@ const client = new PrismaClient({
 });
 
 // making a global variable for prisma client
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-// exporting prisma client
-export const prisma = globalForPrisma.prisma ?? client;
-
-// this is for development purposes only to ensure that we dont create multiple instances of PrismaClient
-if (process.env.NODE_ENV === "development") {
-  globalForPrisma.prisma = client;
+let prisma: PrismaClient;
+// if the environment is development, attach the prisma client to the global object
+if(process.env.NODE_ENV === "development"){
+  const globalForPrisma = globalThis as unknown as {
+    prisma: PrismaClient | undefined;
+  };
+// if PrismaClient is already attached to the global object reuse it otherwise, attach the current client
+  if(!globalForPrisma.prisma){
+    globalForPrisma.prisma = client;
+  }
+  prisma = globalForPrisma.prisma;
 }
+else{
+  prisma = client;
+}
+
+export { prisma };
+
+
+
