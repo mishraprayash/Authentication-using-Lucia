@@ -14,12 +14,10 @@ type GoogleUserData = {
 
 // callback_url(dev-mode) ---> http://localhost:3000/api/auth/google/callback
 
-const getUrl = (request: NextRequest) => {
-  return new URL(request.url)
-}
+
 
 export async function GET(request: NextRequest) {
-  const url = getUrl(request);
+  const url = new URL(request.url);
   try {
     // grabbing code and state from the url
     const code = url.searchParams.get("code");
