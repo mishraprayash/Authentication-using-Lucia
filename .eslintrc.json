@@ -4,7 +4,7 @@
     {
       "files": ["*.ts", "*.tsx"],
       "parser": "@typescript-eslint/parser",
-      "rules": { "no-empty-interface": false }
+      "rules": { "no-empty-interface":"off" }
     }
   ]
 }
